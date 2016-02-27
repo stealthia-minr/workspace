@@ -1,7 +1,5 @@
 package me.stealthia_minr;
 
-//ADDING A COMMENT
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
