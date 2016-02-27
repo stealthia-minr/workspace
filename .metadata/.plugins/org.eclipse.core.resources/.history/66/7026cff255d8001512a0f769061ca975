@@ -1,0 +1,67 @@
+package me.stealthia_minr;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class WandOfX extends JavaPlugin implements Listener{
+	@Override
+	public void onEnable() {
+		
+		getLogger().info("Loading WandOfX...");
+		Bukkit.getServer().getPluginManager().registerEvents(this, this);
+		
+		try
+		{
+		    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(FILE_LOCATION)));//again, make sure you have a file object
+		    String l;
+		    int x,y,z; //we'll use these to load the coordinates of both locations
+		    while((l=br.readLine()) != null)
+		    {
+		        //look for data lines formatted: [sign X,Y,Z] + ":" + [destination X,Y,Z]
+		    	//example: "1,2,3|103,102,101"
+		    	l=l.trim(); //this takes off the newline character on the end of the string, which we don't need.
+		    	
+		    	
+		    }
+		    br.close();
+		} catch (Exception e){
+			getLogger().info(e.getMessage());
+		}
+	}
+	
+	@Override
+	public void onDisable() {
+		try
+		{
+		    BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_LOCATION)); //use FileWriter(file, true) to prevent overriding
+		    
+		    bw.close();
+		}
+		catch(IOException ioe)
+		{
+			getLogger().info(ioe.getMessage());
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event) {
+		Player p = event.getPlayer();
+		
+		Action act = event.getAction();
+		if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK){
+			if (p.getInventory().getItemInHand().getType() == Material.STICK){
+				p.launchProjectile(Fireball.class, p.getEyeLocation().getDirection().multiply(2));
+			}
+		}
+		
+		
+					
+	}
+}

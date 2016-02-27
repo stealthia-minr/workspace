@@ -1,0 +1,152 @@
+package me.stealthia_minr;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class WandOfX extends JavaPlugin implements Listener{
+	HashMap<String, HashMap<String, Integer>> playerLevels;
+	final String CLASS_SAVE_FILE = "playerClasses.dat";
+	// key = player name, value = sub-hashmap (key = class name, value = level)
+	
+	@Override
+	public void onEnable() {
+		
+		getLogger().info("Loading WandOfX...");
+		Bukkit.getServer().getPluginManager().registerEvents(this, this);
+		playerLevels = new HashMap<String, HashMap<String, Integer>>();
+		
+		try
+		{
+		    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(CLASS_SAVE_FILE)));//again, make sure you have a file object
+		    String line;
+
+		    String playerName = "";
+		    while((line=br.readLine()) != null)
+		    {
+		        //look for data lines formatted: 
+		    	//Line 1: [player name]
+		    	//Line 2: [class:level;class2:level; ...]
+		    	//repeat
+		    	
+		    	line=line.trim(); //this takes off the newline character on the end of the string, which we don't need.
+		    	
+		    	if (playerName == ""){//The lines with playernames
+		    		playerName = line;
+		    		playerLevels.put(playerName,  new HashMap<String, Integer>());
+		    		
+		    	} else {//The lines with class/level data
+		    		String[] pairs = line.split(";");
+		    		for (int i=0;i < pairs.length; i++){
+		    			String[] pairData = pairs[i].split(":");
+		    			if (pairData.length == 2) playerLevels.get(playerName).put(pairData[0],Integer.parseInt(pairData[1]));
+		    		}
+		    		
+		    		playerName = "";
+		    	}
+		    }
+		    br.close();
+		} catch (Exception e){
+			getLogger().info(e.getMessage());
+		}
+	}
+	
+	@Override
+	public void onDisable() {
+		try
+		{
+		    BufferedWriter bw = new BufferedWriter(new FileWriter(CLASS_SAVE_FILE)); //use FileWriter(file, true) to prevent overriding
+		    //save data lines formatted: 
+	    	//Line 1: [player name]
+	    	//Line 2: [class:level;class2:level; ...]
+	    	//repeat
+		    
+		    for(String playerName : playerLevels.keySet()){
+		    	bw.write(playerName);
+		    	bw.newLine();
+		    	
+		    	//create the next line [class:level;class2:level; ...]
+		    	
+		    	for(String className : playerLevels.get(playerName).keySet()){
+		    		bw.write(className);
+		    		bw.write(":");
+		    		bw.write(playerLevels.get(playerName).get(className).toString());
+		    		bw.write(";");
+		    	}
+		    	bw.newLine();
+		    }
+		    bw.close();
+		}
+		catch(Exception e)
+		{
+			getLogger().info(e.getMessage());
+		}
+	}
+	
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)  {
+		if (cmd.getName().equalsIgnoreCase("givexp") && sender instanceof Player) {
+			Player player = (Player) sender;
+			String playerName = player.getName();
+			if(args.length != 2){
+				return false;
+			}
+			String className = args[0];
+			int xp = Integer.parseInt(args[1]);
+			if(! playerLevels.containsKey(playerName)){
+				playerLevels.put(playerName, new HashMap<String, Integer>());
+			}
+			if(playerLevels.get(playerName).containsKey(className)){
+				playerLevels.get(playerName).put(className, xp + playerLevels.get(playerName).get(className));
+			}else{
+				playerLevels.get(playerName).put(className, xp);
+			}
+			player.sendMessage("Gave " + xp + " in class " + className + ".");
+
+			return true;
+		}
+		
+		if (cmd.getName().equalsIgnoreCase("showxp") && sender instanceof Player) {
+			Player player = (Player) sender;
+			String playerName = player.getName();
+			if(! playerLevels.containsKey(playerName)){
+				player.sendMessage("You have no xp.");
+				return true;
+			}
+			player.sendMessage("Your XP:");
+			for(String className : playerLevels.get(playerName).keySet()){
+				player.sendMessage(className + " - " + playerLevels.get(playerName).get(className));
+			}
+			return true;
+		}
+		
+		return false;
+	}
+	
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event) {
+		Player p = event.getPlayer();
+		
+		Action act = event.getAction();
+		if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK){
+			if (p.getInventory().getItemInHand().getType() == Material.STICK){
+				p.launchProjectile(Fireball.class, p.getEyeLocation().getDirection().multiply(2));
+			}
+		}
+					
+	}
+}

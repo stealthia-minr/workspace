@@ -1,0 +1,145 @@
+package me.stealthia_minr;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.plugin.java.JavaPlugin;
+import java.util.HashMap;
+
+public class TeleportingSigns  extends JavaPlugin implements Listener{
+	final String FILE_LOCATION = "world/TeleportingSigns.dat";
+	HashMap<Location, Location> tpMap; //a dictionary of teleport pairs.  The first location is the start point, the second location is the destination.
+	boolean readyToClick = false;
+	Location tpTarget = null;
+	
+	@Override
+	public void onEnable() {
+		tpMap = new HashMap<Location, Location>();
+		readyToClick = false;
+		tpTarget = null;
+		
+		getLogger().info("Hello Logan! onEnable is a butt!");
+		Bukkit.getServer().getPluginManager().registerEvents( this, this);
+		
+		//load teleport pairs from file:
+		try
+		{
+		    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(FILE_LOCATION)));//again, make sure you have a file object
+		    String l;
+		    while((l=br.readLine()) != null)
+		    {
+		        //look for data lines formatted: [sign X,Y,Z] + "|" + [destination X,Y,Z]
+		    	
+		    	if(! l.contains("|")) {//If the string doesn't contain "|"
+		    		//Warn user of malformed string
+		    		continue; //skips while loop to next line
+		    	}
+		    	String firstHalf = l.split("|")[0];//0 is the first one - computers count 0,1,2...
+		    	String backHalf = l.split("|")[1];
+		    	
+		    	int x = Integer.parseInt(firstHalf.split(",")[0]);
+		    	int y = Integer.parseInt(firstHalf.split(",")[1]);
+		    	int z = Integer.parseInt(firstHalf.split(",")[2]);
+		    	
+		    	tpMap.put(new Location(l.split("'")[0]), new Location(l.split("|")[1]));
+		    }
+		    br.close();
+		} catch (Exception e){
+			getLogger().info(e.getMessage());
+		}
+	}
+	
+	@Override
+	public void onDisable() {
+		//Save tpMap to file
+		try
+		{
+		    BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_LOCATION)); //use FileWriter(file, true) to prevent overriding
+		    bw.write("test");
+		    bw.close();
+		}
+		catch(IOException ioe)
+		{
+		    //error
+			getLogger().info(ioe.getMessage());
+		}
+	}
+	
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)  {
+		if (cmd.getName().equalsIgnoreCase("tpstart") && sender instanceof Player) {
+			readyToClick = true;
+
+			return true;
+		}
+		
+		if (cmd.getName().equalsIgnoreCase("tptarget") && sender instanceof Player) {
+			Player player = (Player) sender;
+			//player.sendMessage("Target is: " + tpTarget.toString());
+			//player.getLocation()
+			player.teleport(tpTarget);
+			return true;
+		}
+		
+		if (cmd.getName().equalsIgnoreCase("tpcancel") && sender instanceof Player) {
+			readyToClick = false;
+			tpTarget = null;
+		}
+		
+		return false;
+	}
+	
+	@EventHandler
+	public void onPlayerInteract(PlayerInteractEvent event) {
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			Block clickedBlock = event.getClickedBlock();
+			if(readyToClick){//If we just got the "/settp" command, then the next right click saves the location to tpTarget
+				tpTarget = event.getClickedBlock().getLocation().add(.5,0,.5);//UNTESTED - does the .5/.5 offset bring us to the middle of the CORRECT square?
+				readyToClick = false;
+			} else if (event.getClickedBlock().getType() == Material.SIGN_POST || event.getClickedBlock().getType() == Material.WALL_SIGN) {
+				//If we right click a sign, try to teleport to where it points.
+				if(tpMap.containsKey(clickedBlock.getLocation())) {//If we have this sign in our Map
+					event.getPlayer().teleport(tpMap.get(clickedBlock.getLocation()));
+				}else{
+					//Do we do anything when they right-click a sign we don't know about?
+					event.getPlayer().sendMessage("Unknown tp sign");
+				}
+			}
+			
+			
+		}
+					
+	}
+	@EventHandler
+	public void onSignChange(SignChangeEvent event) {
+        Player player = event.getPlayer();
+        BlockState state = event.getBlock().getState();
+        if(state instanceof Sign && tpTarget != null) {
+            Sign sign = (Sign) state;
+    
+            tpMap.put(sign.getLocation(),tpTarget);
+            tpTarget = null;
+            //player.sendMessage("It works");
+            //player.sendMessage(ChatColor.AQUA + "Sign Loc: " + ChatColor.RED + sign.getLocation());
+        }
+    }
+	
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="java.lang.System"/>
+<fullyQualifiedTypeName name="org.bukkit.ChatColor"/>
+<fullyQualifiedTypeName name="org.bukkit.event.block.SignChangeEvent"/>
+<fullyQualifiedTypeName name="org.bukkit.block.BlockState"/>
+<fullyQualifiedTypeName name="org.bukkit.block.Sign"/>
+<fullyQualifiedTypeName name="org.bukkit.plugin.java.JavaPlugin"/>
+<fullyQualifiedTypeName name="org.bukkit.Bukkit"/>
+<fullyQualifiedTypeName name="org.bukkit.event.Listener"/>
+<fullyQualifiedTypeName name="org.bukkit.event.block.Action"/>
+<fullyQualifiedTypeName name="org.bukkit.event.player.PlayerInteractEvent"/>
+<fullyQualifiedTypeName name="org.bukkit.entity.Player"/>
+<fullyQualifiedTypeName name="org.bukkit.Material"/>
+<fullyQualifiedTypeName name="org.bukkit.Location"/>
+<fullyQualifiedTypeName name="org.bukkit.entity.Arrow"/>
+<fullyQualifiedTypeName name="org.bukkit.entity.Fireball"/>
+<fullyQualifiedTypeName name="org.bukkit.event.EventHandler"/>
+<fullyQualifiedTypeName name="java.io.BufferedReader"/>
+<fullyQualifiedTypeName name="java.io.InputStreamReader"/>
+<fullyQualifiedTypeName name="java.io.FileWriter"/>
+<fullyQualifiedTypeName name="java.io.BufferedWriter"/>
+<fullyQualifiedTypeName name="java.io.FileInputStream"/>
+<fullyQualifiedTypeName name="java.io.IOException"/>
+<fullyQualifiedTypeName name="java.util.HashMap"/>
+<fullyQualifiedTypeName name="org.bukkit.command.CommandSender"/>
+<fullyQualifiedTypeName name="org.bukkit.command.Command"/>
+</qualifiedTypeNameHistroy>

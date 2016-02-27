@@ -1,0 +1,10 @@
+name: WandOfX
+main: me.stealthia_minr.WandOfX
+version: 1.0
+commands:
+   givexp:
+      description:  This starts the teleport-sign building process.
+      usage: /<command> className xpAmount
+   showxp:
+      description:  This starts the teleport-sign building process.
+      usage: /<command>

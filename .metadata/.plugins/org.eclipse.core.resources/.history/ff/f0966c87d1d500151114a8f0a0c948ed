@@ -1,0 +1,22 @@
+package me.stealthia_minr;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerEggThrowEvent;
+
+public class playerListener implements Listener {
+
+	public playerListener(EventHandle plugin) {
+		plugin.getServer().getPluginManager().registerEvents(this, plugin);
+	}
+	
+	@EventHandler
+	public void onThrow(PlayerEggThrowEvent e) {
+		
+		Player player = e.getPlayer();
+		
+		player.teleport(e.getEgg());
+		 
+	}
+}

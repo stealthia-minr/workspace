@@ -1,0 +1,13 @@
+name: MyFirstPlugin
+main: me.stealthia_minr.TeleportingSigns
+version: 1.0
+commands:
+   tpstart:
+      description:  This starts the teleport-sign building process.
+      usage: /<command>
+   tptarget:
+      description:  Testing show tpTarget.
+      usage: /<command>
+   tpcancel:
+      description: Cancels a tpstart
+      usage: /<command>
