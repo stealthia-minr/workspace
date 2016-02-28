@@ -161,8 +161,8 @@ public class WandOfX extends JavaPlugin implements Listener{
 	}
 	@EventHandler
 	public void OnPlayerAnimation(PlayerAnimationEvent event) {
-		final double MAX_OFF_DIST = 1.5; //blocks of error in where you're looking
-		final double MAX_RANGE = 30;
+		final double MAX_OFF_DIST = 3; //blocks of error in where you're looking
+		final double MAX_RANGE = 50;
 		Player p = event.getPlayer();
 		Location pEyeLoc = p.getEyeLocation();
 		
@@ -177,7 +177,7 @@ public class WandOfX extends JavaPlugin implements Listener{
 			
 			Damageable bestGuy = null;
 			double bestDist = 100;
-			boolean first = false;//for testing, prints out locations.
+			boolean first = true;
 	        for (Entity e : nearbyE) {
 	            if (e instanceof Damageable) {
 	            	Damageable guy = (Damageable) e;
@@ -208,11 +208,10 @@ public class WandOfX extends JavaPlugin implements Listener{
 	                }
 	            }
 	        }
-	        if (bestGuy != null){
-	        	bestGuy.playEffect(EntityEffect.VILLAGER_HAPPY);
-	        	Location guyLoc = bestGuy.getLocation();
-	        	guyLoc.add(new Vector(0,3,0));
-	        	bestGuy.teleport(guyLoc);
+	        if (bestGuy == null){
+	        	p.sendMessage("null Guy? bestDist = " + bestDist);
+	        }else{
+		        bestGuy.playEffect(EntityEffect.VILLAGER_HAPPY);
 	        }
 		}
 	}

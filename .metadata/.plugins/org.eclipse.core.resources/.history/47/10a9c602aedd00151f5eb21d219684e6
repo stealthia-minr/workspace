@@ -162,22 +162,18 @@ public class WandOfX extends JavaPlugin implements Listener{
 	@EventHandler
 	public void OnPlayerAnimation(PlayerAnimationEvent event) {
 		final double MAX_OFF_DIST = 1.5; //blocks of error in where you're looking
-		final double MAX_RANGE = 30;
 		Player p = event.getPlayer();
 		Location pEyeLoc = p.getEyeLocation();
 		
 		if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
-			List<Entity> nearbyE = p.getNearbyEntities(60,60,60);
+			List<Entity> nearbyE = p.getNearbyEntities(80,80,80);
 			if (nearbyE.isEmpty()){
 				p.sendMessage("no targets found");
 				return; //exit the function
-			}else{
-				//p.sendMessage(nearbyE.size() + " targets found");
 			}
-			
+
 			Damageable bestGuy = null;
 			double bestDist = 100;
-			boolean first = false;//for testing, prints out locations.
 	        for (Entity e : nearbyE) {
 	            if (e instanceof Damageable) {
 	            	Damageable guy = (Damageable) e;
@@ -187,32 +183,22 @@ public class WandOfX extends JavaPlugin implements Listener{
 	                //Okay, now where am I looking, that's that far away? 
 	                //[if I'm looking East, pLookLoc = '30 blocks East of me']
 	                Vector pLookVector = pEyeLoc.getDirection();
-	                pLookVector.multiply(guyDist/pLookVector.length());
-	                Location pLookLoc = pEyeLoc.clone();
-	                pLookLoc.add(pLookVector);
+	                Location pLookLoc = pEyeLoc.add(pLookVector.multiply(guyDist/pLookVector.length()));
 	                //How far is Guy from that location?
 	                double errDist = pLookLoc.distance(guyLoc);
 	                
-	                if (/* p.hasLineOfSight(guy) && */ errDist < MAX_OFF_DIST && guyDist < MAX_RANGE){
+	                if (p.hasLineOfSight(guy) && errDist < MAX_OFF_DIST){
 	                	if(guyDist < bestDist){
 	                		bestDist = guyDist;
 	                		bestGuy = guy;
 	                	}
 	                }
-	                if(first && guyDist < MAX_RANGE){
-	                	p.sendMessage("guyLoc:" + guyLoc.toString());
-	                	p.sendMessage("pEyeLoc:" + pEyeLoc.toString());
-	                	p.sendMessage("guyDist:" + guyDist);
-	                	p.sendMessage("errDist:" + errDist);
-	    	            //first = false;
-	                }
 	            }
 	        }
-	        if (bestGuy != null){
-	        	bestGuy.playEffect(EntityEffect.VILLAGER_HAPPY);
-	        	Location guyLoc = bestGuy.getLocation();
-	        	guyLoc.add(new Vector(0,3,0));
-	        	bestGuy.teleport(guyLoc);
+	        if (bestGuy == null){
+	        	p.sendMessage("null Guy? bestDist = " + bestDist);
+	        }else{
+		        bestGuy.playEffect(EntityEffect.VILLAGER_HAPPY);
 	        }
 		}
 	}
